@@ -194,3 +194,15 @@ padding-left: 25px;
 padding: 8px;}
 tr td a{text-decoration: none;
 color: #002664;}
+ul.myul {
+    line-height: 200%;
+    padding-left: 2em;
+}
+ul.myul li {
+    list-style-type: none;
+}
+ul.myul li a {
+    color: #002664;
+    text-decoration: none;
+}
+.imgcentercaption{text-align: center;}

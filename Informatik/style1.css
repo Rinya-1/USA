@@ -1,0 +1,6 @@
+.spisok{margin: 0;}
+body{background-image: url(фонк.jpg); background-size: cover; background-position: center ;}
+#strok{color: pink; font-weight: bold; font-style: italic;}
+.li{color: yellow;}
+.li2{color: orange;}
+.textix{right: 100%}

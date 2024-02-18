@@ -10,17 +10,40 @@
             margin: 0 auto;
             display: block;
         }
+
+        body {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <canvas id="gameCanvas"></canvas>
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        const CELL_SIZE = 20;
-        const GRID_WIDTH = canvas.width / CELL_SIZE;
-        const GRID_HEIGHT = canvas.height / CELL_SIZE;
+        let CELL_SIZE = 20;
+        let GRID_WIDTH;
+        let GRID_HEIGHT;
+        
+        function setup() {
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            const maxGridWidth = Math.floor(screenWidth / CELL_SIZE);
+            const maxGridHeight = Math.floor(screenHeight / CELL_SIZE);
+
+            // Выбираем минимальное значение для адаптации, чтобы вместить игру на экране
+            GRID_WIDTH = Math.min(maxGridWidth, 30); // Максимальное количество ячеек по горизонтали
+            GRID_HEIGHT = Math.min(maxGridHeight, 20); // Максимальное количество ячеек по вертикали
+
+            canvas.width = GRID_WIDTH * CELL_SIZE;
+            canvas.height = GRID_HEIGHT * CELL_SIZE;
+        }
+
+        setup(); // Вызов функции setup() для адаптации размеров при загрузке страницы
 
         let snake = [{ x: GRID_WIDTH / 2, y: GRID_HEIGHT / 2 }];
         let direction = { x: 1, y: 0 };
@@ -89,6 +112,81 @@
             drawSnake();
             drawApple();
             drawText(`Score: ${score}`, canvas.width / 2, 20);
+        }
+
+        // Обработчик события изменения размеров окна
+        window.addEventListener("resize", () => {
+            setup();
+            // Повторно устанавливаем обработчик события touchmove при изменении размеров окна
+            if (isMobile) {
+                addTouchMoveListener();
+            }
+        });
+
+        // Проверка, является ли устройство мобильным
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+        function addTouchMoveListener() {
+            let touchStartX = null;
+            let touchStartY = null;
+
+            window.addEventListener("touchmove", (event) => {
+                event.preventDefault(); // Отмена стандартного поведения браузера для события touchmove
+
+                if (!touchStartX || !touchStartY) return;
+
+                const touchEndX = event.touches[0].clientX;
+                const touchEndY = event.touches[0].clientY;
+
+                const dx = touchEndX - touchStartX;
+                const dy = touchEndY - touchStartY;
+
+                if (Math.abs(dx) > Math.abs(dy)) {
+                    // Горизонтальное движение
+                    if (dx > 0) {
+                        // Движение вправо
+                        if (direction.x !== -1) {
+                            direction = { x: 1, y: 0 };
+                        }
+                    } else {
+                        // Движение влево
+                        if (direction.x !== 1) {
+                            direction = { x: -1, y: 0 };
+                        }
+                    }
+                } else {
+                    // Вертикальное движение
+                    if (dy > 0) {
+                        // Движение вниз
+                        if (direction.y !== -1) {
+                            direction = { x: 0, y: 1 };
+                        }
+                    } else {
+                        // Движение вверх
+                        if (direction.y !== 1) {
+                            direction = { x: 0, y: -1 };
+                        }
+                    }
+                }
+
+                touchStartX = null;
+                touchStartY = null;
+            });
+
+            window.addEventListener("touchstart", (event) => {
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+            });
+
+            window.addEventListener("touchend", () => {
+                touchStartX = null;
+                touchStartY = null;
+            });
+        }
+
+        // Вызываем функцию для установки обработчика событий touchmove
+        if (isMobile) {
+            addTouchMoveListener();
         }
 
         window.addEventListener("keydown", (event) => {
